@@ -1,0 +1,24 @@
+{
+  "feature": "trade-in-platform",
+  "language": "en",
+  "platform": "kiro-ide",
+  "type": "main",
+  "currentPhase": "foundation",
+  "completedPhases": ["context", "d1", "requirements", "d2", "units", "df", "foundation"],
+  "nextAction": "design-decisions",
+  "mode": "incremental",
+  "implementationMode": null,
+  "units": [
+    { "name": "foundation", "status": "in-progress", "currentPhase": "tasks", "nextAction": "complete" },
+    { "name": "admin-operations", "status": "not-started", "currentPhase": null, "nextAction": null },
+    { "name": "seller-portal", "status": "not-started", "currentPhase": null, "nextAction": null },
+    { "name": "buyer-portal", "status": "not-started", "currentPhase": null, "nextAction": null }
+  ],
+  "implementation": {
+    "totalTasks": 0,
+    "completedTasks": 0,
+    "currentTask": null,
+    "currentWave": null
+  },
+  "lastUpdated": "2026-04-08T00:07:00Z"
+}
