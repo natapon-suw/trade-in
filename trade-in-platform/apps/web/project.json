@@ -21,7 +21,7 @@
       "continuous": true,
       "options": {
         "cwd": "apps/web",
-        "command": "next dev"
+        "command": "next dev --port 4200"
       },
       "executor": "nx:run-commands"
     },
@@ -29,7 +29,7 @@
       "continuous": true,
       "options": {
         "cwd": "apps/web",
-        "command": "next dev"
+        "command": "next dev --port 4200"
       },
       "executor": "nx:run-commands"
     },

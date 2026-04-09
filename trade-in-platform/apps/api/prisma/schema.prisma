@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
+  output   = "../../../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -24,5 +24,276 @@ model User {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
+  assessedAssessments  Assessment[] @relation("AssessedBy")
+  overriddenAssessments Assessment[] @relation("PriceOverrideBy")
+
   @@map("users")
+}
+
+// ─── Admin Enums ───────────────────────────────────────────
+
+enum ProductCategory {
+  LAPTOP
+  PC
+  MACBOOK
+}
+
+enum AssessmentStatus {
+  CUSTOMER_SELECTED
+  MODEL_SELECTED
+  TESTING
+  TEST_COMPLETE
+  PHOTOS_CAPTURED
+  DEFECTS_GRADED
+  PRICED
+  STOCKED
+}
+
+enum UploadVia {
+  PC
+  MOBILE
+}
+
+enum ConditionType {
+  DEFECT_SEVERITY
+  TEST_PASS_RATE
+  DEFECT_COUNT
+}
+
+enum ConditionOperator {
+  GT
+  GTE
+  LT
+  LTE
+  EQ
+}
+
+enum AdjustmentType {
+  PERCENTAGE
+  FIXED
+}
+
+enum StockStatus {
+  AVAILABLE
+  SOLD
+  REMOVED
+}
+
+// ─── Admin Entities ────────────────────────────────────────
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String    @unique
+  email     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  assessments Assessment[]
+
+  @@index([name])
+  @@map("admin_customers")
+}
+
+model ProductModel {
+  id        String          @id @default(uuid())
+  brand     String
+  name      String
+  category  ProductCategory
+  basePrice Decimal
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  assessments Assessment[]
+  stockItems  StockItem[]
+
+  @@index([brand])
+  @@index([category])
+  @@index([brand, name])
+  @@map("admin_product_models")
+}
+
+model TestGuide {
+  id        String          @id @default(uuid())
+  category  ProductCategory
+  name      String
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  steps TestStep[]
+
+  @@index([category])
+  @@map("admin_test_guides")
+}
+
+model TestStep {
+  id          String  @id @default(uuid())
+  testGuideId String
+  stepNumber  Int
+  title       String
+  description String?
+
+  testGuide   TestGuide    @relation(fields: [testGuideId], references: [id])
+  testResults TestResult[]
+
+  @@unique([testGuideId, stepNumber])
+  @@map("admin_test_steps")
+}
+
+model DefectChecklist {
+  id        String          @id @default(uuid())
+  category  ProductCategory
+  name      String
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  items DefectItem[]
+
+  @@index([category])
+  @@map("admin_defect_checklists")
+}
+
+model DefectItem {
+  id                 String @id @default(uuid())
+  defectChecklistId  String
+  name               String
+  description        String?
+  defaultSeverity    Int?
+
+  defectChecklist    DefectChecklist    @relation(fields: [defectChecklistId], references: [id])
+  assessmentDefects  AssessmentDefect[]
+
+  @@map("admin_defect_items")
+}
+
+model Assessment {
+  id                   String           @id @default(uuid())
+  customerId           String
+  productModelId       String
+  assessedById         String
+  status               AssessmentStatus @default(CUSTOMER_SELECTED)
+  finalPrice           Decimal?
+  priceOverrideReason  String?
+  priceOverrideById    String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  completedAt          DateTime?
+
+  customer        Customer          @relation(fields: [customerId], references: [id])
+  productModel    ProductModel      @relation(fields: [productModelId], references: [id])
+  assessedBy      User              @relation("AssessedBy", fields: [assessedById], references: [id])
+  priceOverrideBy User?             @relation("PriceOverrideBy", fields: [priceOverrideById], references: [id])
+  testResults     TestResult[]
+  photos          AssessmentPhoto[]
+  defects         AssessmentDefect[]
+  stockItem       StockItem?
+  qrSessions      QRSession[]
+
+  @@index([customerId])
+  @@index([assessedById])
+  @@index([status])
+  @@index([createdAt])
+  @@map("admin_assessments")
+}
+
+model TestResult {
+  id           String   @id @default(uuid())
+  assessmentId String
+  testStepId   String
+  passed       Boolean
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+  testStep   TestStep   @relation(fields: [testStepId], references: [id])
+
+  @@unique([assessmentId, testStepId])
+  @@map("admin_test_results")
+}
+
+model AssessmentPhoto {
+  id           String   @id @default(uuid())
+  assessmentId String
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  uploadedVia  UploadVia
+  createdAt    DateTime @default(now())
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+
+  @@index([assessmentId])
+  @@map("admin_assessment_photos")
+}
+
+model AssessmentDefect {
+  id           String @id @default(uuid())
+  assessmentId String
+  defectItemId String
+  severity     Int
+  notes        String?
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+  defectItem DefectItem @relation(fields: [defectItemId], references: [id])
+
+  @@unique([assessmentId, defectItemId])
+  @@map("admin_assessment_defects")
+}
+
+model PricingRule {
+  id                String            @id @default(uuid())
+  name              String
+  category          ProductCategory?
+  conditionType     ConditionType
+  conditionOperator ConditionOperator
+  conditionValue    Decimal
+  adjustmentType    AdjustmentType
+  adjustmentValue   Decimal
+  priority          Int               @default(0)
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([category])
+  @@index([priority(sort: Desc)])
+  @@index([isActive])
+  @@map("admin_pricing_rules")
+}
+
+model StockItem {
+  id             String      @id @default(uuid())
+  assessmentId   String      @unique
+  productModelId String
+  price          Decimal
+  conditionGrade String
+  status         StockStatus @default(AVAILABLE)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  assessment   Assessment   @relation(fields: [assessmentId], references: [id])
+  productModel ProductModel @relation(fields: [productModelId], references: [id])
+
+  @@index([status])
+  @@index([productModelId])
+  @@index([createdAt])
+  @@map("admin_stock_items")
+}
+
+model QRSession {
+  id           String   @id @default(uuid())
+  assessmentId String
+  expiresAt    DateTime
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+
+  @@index([assessmentId])
+  @@index([expiresAt])
+  @@map("admin_qr_sessions")
 }

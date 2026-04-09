@@ -6,9 +6,10 @@ import { DatabaseModule } from '../shared/database';
 import { ErrorsModule } from '../shared/errors';
 import { LoggingModule } from '../shared/logging';
 import { AuthModule } from '../shared/auth';
+import { AdminModule } from '../modules/admin';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, ErrorsModule, LoggingModule, AuthModule],
+  imports: [ConfigModule, DatabaseModule, ErrorsModule, LoggingModule, AuthModule, AdminModule],
   controllers: [AppController],
   providers: [AppService],
 })
