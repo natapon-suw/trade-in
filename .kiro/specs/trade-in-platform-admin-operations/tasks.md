@@ -33,7 +33,7 @@ Tasks organized by sub-module with backend-first approach.
     - Create login endpoint using shared AuthService
     - Return JWT token + AuthContext with permissions
     - Write tests for login controller
-  - [-] 2.2 Implement customer service and controller
+  - [x] 2.2 Implement customer service and controller
     - **Deps**: 1.2 | **Ref**: `design/api-spec.md` — Customers endpoints
     - Create CustomerService: search (by name/phone), create (with phone uniqueness check)
     - Create CustomerController: GET /customers?search, POST /customers
@@ -42,7 +42,7 @@ Tasks organized by sub-module with backend-first approach.
     - Write tests for CustomerService
 
 - [ ] 3. Catalog Sub-Module (Backend)
-  - [ ] 3.1 Implement product model service and controller
+  - [x] 3.1 Implement product model service and controller
     - **Deps**: 1.2 | **Ref**: `design/api-spec.md` — Product Models endpoints
     - Create ProductModelService: search, create, update, deactivate
     - Create ProductModelController: GET, POST, PATCH endpoints
