@@ -5,11 +5,11 @@
   "type": "main",
   "currentPhase": "foundation",
   "completedPhases": ["context", "d1", "requirements", "d2", "units", "df", "foundation"],
-  "nextAction": "design-decisions",
+  "nextAction": "select-unit",
   "mode": "incremental",
   "implementationMode": null,
   "units": [
-    { "name": "foundation", "status": "in-progress", "currentPhase": "tasks", "nextAction": "complete" },
+    { "name": "foundation", "status": "completed", "currentPhase": null, "nextAction": null },
     { "name": "admin-operations", "status": "not-started", "currentPhase": null, "nextAction": null },
     { "name": "seller-portal", "status": "not-started", "currentPhase": null, "nextAction": null },
     { "name": "buyer-portal", "status": "not-started", "currentPhase": null, "nextAction": null }
