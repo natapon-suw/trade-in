@@ -36,7 +36,7 @@ export default function ProductModelsPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await searchProductModels(search, categoryFilter || undefined);
+      const res = await searchProductModels(search, categoryFilter || undefined, true);
       setModels(res.data);
     } catch {
       setError('Failed to load product models');

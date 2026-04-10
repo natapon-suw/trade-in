@@ -9,4 +9,8 @@ export class SearchProductModelDto {
   @IsEnum(ProductCategory)
   @IsOptional()
   category?: ProductCategory;
+
+  @IsString()
+  @IsOptional()
+  includeInactive?: string;
 }

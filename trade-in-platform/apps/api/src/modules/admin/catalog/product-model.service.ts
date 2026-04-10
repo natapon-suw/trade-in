@@ -10,8 +10,12 @@ import { UpdateProductModelDto } from './dto/update-product-model.dto';
 export class ProductModelService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async search(query?: string, category?: ProductCategory) {
-    const where: Record<string, unknown> = { isActive: true };
+  async search(query?: string, category?: ProductCategory, includeInactive = false) {
+    const where: Record<string, unknown> = {};
+
+    if (!includeInactive) {
+      where.isActive = true;
+    }
 
     if (query) {
       where.OR = [

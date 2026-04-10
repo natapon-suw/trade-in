@@ -26,7 +26,8 @@ export class ProductModelController {
   @Roles('admin-operation', 'admin-manager')
   @HttpCode(HttpStatus.OK)
   async search(@Query() dto: SearchProductModelDto) {
-    return this.productModelService.search(dto.search, dto.category);
+    const includeInactive = dto.includeInactive === 'true';
+    return this.productModelService.search(dto.search, dto.category, includeInactive);
   }
 
   @Post()

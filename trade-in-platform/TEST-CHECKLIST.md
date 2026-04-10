@@ -32,10 +32,10 @@
 
 ### Product Models
 - [/] Go to `/admin/catalog/models`
-- [ ] Click "Add Model" → fill: brand=Apple, name=MacBook Pro 14, category=MACBOOK, basePrice=1500
-- [ ] Model appears in table
-- [ ] Click "Edit" → change base price → saves
-- [ ] Click Active/Inactive toggle → status changes
+- [/] Click "Add Model" → fill: brand=Apple, name=MacBook Pro 14, category=MACBOOK, basePrice=1500
+- [/] Model appears in table
+- [/] Click "Edit" → change base price → saves
+- [/] Click Active/Inactive toggle → status changes
 
 ### Test Guides
 - [ ] Go to `/admin/catalog/test-guides`

@@ -100,10 +100,11 @@ export async function createCustomer(data: {
 }
 
 // --- Product Model API ---
-export async function searchProductModels(query: string, category?: string) {
+export async function searchProductModels(query: string, category?: string, includeInactive?: boolean) {
   const params = new URLSearchParams();
   if (query) params.set('search', query);
   if (category) params.set('category', category);
+  if (includeInactive) params.set('includeInactive', 'true');
   return apiFetch<{ data: ProductModel[]; total: number }>(
     `/v1/admin/product-models?${params.toString()}`,
   );
