@@ -16,6 +16,15 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
+  // CORS — allow frontend origin(s) to call the API
+  const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+    : ['http://localhost:4200'];
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+  });
+
   // Static file serving for uploaded photos
   const uploadPath = process.env.UPLOAD_PATH || './uploads';
   const resolvedUploadPath = path.resolve(uploadPath);
