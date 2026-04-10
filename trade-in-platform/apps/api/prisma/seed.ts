@@ -1,5 +1,9 @@
+import * as path from 'path';
+import * as dotenv from 'dotenv';
 import { PrismaClient, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const BCRYPT_ROUNDS = 10;
 
@@ -59,7 +63,9 @@ export async function seed(prisma: PrismaClient): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({
+    log: ['warn', 'error'],
+  });
 
   try {
     await seed(prisma);
