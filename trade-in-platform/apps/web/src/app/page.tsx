@@ -1,6 +1,10 @@
+import { PublicHeader } from '../components/public-header';
+
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center py-16">
+    <>
+      <PublicHeader />
+      <div className="mx-auto max-w-7xl px-4 py-16 flex flex-col items-center justify-center">
       <h2 className="text-3xl font-bold tracking-tight">Trade-In Platform</h2>
       <p className="mt-4 text-gray-600">
         Second-hand electronics trade-in management system
@@ -26,5 +30,6 @@ export default function HomePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

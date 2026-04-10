@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './global.css';
+import { AuthProvider } from '../lib/auth-context';
 
 export const metadata: Metadata = {
   title: 'Trade-In Platform',
@@ -19,12 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
-        <header className="border-b border-gray-200 bg-white">
-          <div className="mx-auto flex h-16 max-w-7xl items-center px-4">
-            <h1 className="text-lg font-semibold">Trade-In Platform</h1>
-          </div>
-        </header>
-        <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

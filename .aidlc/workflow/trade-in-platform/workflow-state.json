@@ -10,9 +10,9 @@
   "implementationMode": null,
   "units": [
     { "name": "foundation", "status": "completed", "currentPhase": null, "nextAction": null },
-    { "name": "admin-operations", "status": "in-progress", "currentPhase": "design", "nextAction": "design-decisions" },
-    { "name": "seller-portal", "status": "not-started", "currentPhase": null, "nextAction": null },
-    { "name": "buyer-portal", "status": "not-started", "currentPhase": null, "nextAction": null }
+    { "name": "admin-operations", "status": "completed", "currentPhase": null, "nextAction": null },
+    { "name": "seller-portal", "status": "completed", "currentPhase": null, "nextAction": null },
+    { "name": "buyer-portal", "status": "completed", "currentPhase": null, "nextAction": null }
   ],
   "implementation": {
     "totalTasks": 0,

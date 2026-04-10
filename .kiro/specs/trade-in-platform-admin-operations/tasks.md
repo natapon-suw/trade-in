@@ -49,13 +49,13 @@ Tasks organized by sub-module with backend-first approach.
     - Create DTOs with class-validator decorators
     - Roles: search = admin-operation + admin-manager, create/update = admin-manager
     - Write tests for ProductModelService
-  - [ ] 3.2 Implement test guide service and controller
+  - [x] 3.2 Implement test guide service and controller
     - **Deps**: 1.2 | **Ref**: `design/api-spec.md` — Test Guides endpoints
     - Create TestGuideService: list by category, create with steps, update
     - Create TestGuideController: GET, POST, PATCH endpoints
     - Include TestStep creation as nested operation
     - Write tests for TestGuideService
-  - [ ] 3.3 Implement defect checklist service and controller
+  - [x] 3.3 Implement defect checklist service and controller
     - **Deps**: 1.2 | **Ref**: `design/api-spec.md` — Defect Checklists endpoints
     - Create DefectChecklistService: list by category, create with items, update
     - Create DefectChecklistController: GET, POST, PATCH endpoints
@@ -63,7 +63,7 @@ Tasks organized by sub-module with backend-first approach.
     - Write tests for DefectChecklistService
 
 - [ ] 4. Assessment Sub-Module (Backend)
-  - [ ] 4.1 Implement assessment workflow service
+  - [x] 4.1 Implement assessment workflow service
     - **Deps**: 2.2, 3.1 | **Ref**: `design/api-spec.md` — Assessments endpoints
     - Create AssessmentService: create (start workflow), get with relations, submit test results, submit defects
     - Implement status transitions: CUSTOMER_SELECTED → MODEL_SELECTED → TESTING → TEST_COMPLETE → PHOTOS_CAPTURED → DEFECTS_GRADED → PRICED → STOCKED
@@ -71,14 +71,14 @@ Tasks organized by sub-module with backend-first approach.
     - Create AssessmentController: POST, GET, PATCH endpoints
     - Create DTOs for each step
     - Write tests for AssessmentService (status transitions, validation)
-  - [ ] 4.2 Implement photo upload (PC)
+  - [x] 4.2 Implement photo upload (PC)
     - **Deps**: 4.1 | **Ref**: `design/api-spec.md` — Photos endpoints
     - Create PhotoService: upload (save to UPLOAD_PATH), list by assessment, delete
     - Create PhotoController: POST /assessments/:id/photos (multipart upload via multer)
     - Configure static file serving for /uploads/* route
     - Validate file size (max 10MB) and format (JPEG, PNG, WebP)
     - Write tests for PhotoService
-  - [ ] 4.3 Implement QR session and WebSocket photo sync
+  - [x] 4.3 Implement QR session and WebSocket photo sync
     - **Deps**: 4.2 | **Ref**: `design/api-spec.md` — QR Session + WebSocket
     - Create QRSessionService: generate session (10min expiry), validate session, expire session
     - Create QR code generation using qrcode library
@@ -88,38 +88,38 @@ Tasks organized by sub-module with backend-first approach.
     - Write tests for QRSessionService
 
 - [ ] 5. Pricing Sub-Module (Backend)
-  - [ ] 5.1 Implement pricing rule service and controller
+  - [x] 5.1 Implement pricing rule service and controller
     - **Deps**: 1.2 | **Ref**: `design/api-spec.md` — Pricing Rules endpoints
     - Create PricingRuleService: list, create, update, deactivate
     - Create PricingRuleController: GET, POST, PATCH, DELETE endpoints
     - Roles: admin-manager only
     - Write tests for PricingRuleService
-  - [ ] 5.2 Implement pricing engine
+  - [x] 5.2 Implement pricing engine
     - **Deps**: 5.1, 4.1 | **Ref**: `design/api-spec.md` — price calculation
     - Create PricingService.calculatePrice(): load rules by category, evaluate conditions against assessment data (test pass rate, defect severity avg, defect count), apply adjustments in priority order, return PriceBreakdown
     - Integrate with AssessmentService: auto-calculate after defects submitted
     - Implement price override for admin-manager
     - Write unit tests for PricingService
     - Write PBT tests with fast-check: property — price never negative, property — more defects = lower price, property — higher severity = larger deduction
-  - [ ] 5.3 Implement defect grading PBT tests
+  - [x] 5.3 Implement defect grading PBT tests
     - **Deps**: 4.1 | **Ref**: D3-10 PBT scope
     - Write PBT tests for defect grading logic: property — severity always 1-5, property — condition grade derived consistently from defect scores
     - Verify defect-to-grade mapping correctness
 
 - [ ] 6. Stock & Dashboard Sub-Modules (Backend)
-  - [ ] 6.1 Implement stock service and controller
+  - [x] 6.1 Implement stock service and controller
     - **Deps**: 4.1, 5.2 | **Ref**: `design/api-spec.md` — Stock endpoints
     - Create StockService: addToStock (from assessment), list with filters/pagination, getDetail
     - Compute conditionGrade from assessment data (test results + defect grades)
     - Create StockController: POST /assessments/:id/stock, GET /stock, GET /stock/:id
     - Write tests for StockService
-  - [ ] 6.2 Implement dashboard service and controller
+  - [x] 6.2 Implement dashboard service and controller
     - **Deps**: 6.1 | **Ref**: `design/api-spec.md` — Dashboard endpoint
     - Create DashboardService: getMetrics (assessed today, total stock, stock value, recent activity)
     - Direct aggregate queries on assessment and stock tables
     - Create DashboardController: GET /dashboard
     - Write tests for DashboardService
-  - [ ] 6.3 Implement Excel export service and controller
+  - [x] 6.3 Implement Excel export service and controller
     - **Deps**: 6.1, 6.2 | **Ref**: `design/api-spec.md` — Export endpoints
     - Create ExportService: exportStock (streaming .xlsx), exportAssessments (streaming .xlsx)
     - Use ExcelJS streaming API for large datasets
@@ -128,46 +128,46 @@ Tasks organized by sub-module with backend-first approach.
     - Write tests for ExportService
 
 - [ ] 7. Admin Frontend Pages
-  - [ ] 7.1 Implement login page and auth flow
+  - [x] 7.1 Implement login page and auth flow
     - **Deps**: 2.1 | **Ref**: `design/implementation.md` — Frontend Structure
     - Create /login page with email/password form
     - Call POST /api/v1/auth/login, store JWT in httpOnly cookie or localStorage
     - Redirect to role-appropriate page (Operation → assessment, Manager → dashboard)
     - Create auth context provider for frontend
-  - [ ] 7.2 Implement admin layout and navigation
+  - [x] 7.2 Implement admin layout and navigation
     - **Deps**: 7.1 | **Ref**: `design/implementation.md` — Frontend Structure
     - Create /admin layout with sidebar navigation
     - Nav items: Assessment, Dashboard, Stock, Catalog (Models, Test Guides, Defect Checklists), Pricing Rules
     - Show/hide nav items based on role (Operation vs Manager)
     - Protected route wrapper (redirect to login if no token)
-  - [ ] 7.3 Implement assessment workflow page
+  - [x] 7.3 Implement assessment workflow page
     - **Deps**: 7.2, 4.1, 4.2, 4.3 | **Ref**: `design/implementation.md`
     - Create /admin/assessment page with multi-step wizard
     - Steps: 1) Search/register customer, 2) Select product model, 3) Follow test guide, 4) Record test results, 5) Upload photos (PC + QR helper), 6) Fill defects, 7) View price, 8) Add to stock
     - Each step calls the corresponding API endpoint
     - QR photo step: show QR code, connect WebSocket for real-time photo updates
-  - [ ] 7.4 Implement catalog management pages
+  - [x] 7.4 Implement catalog management pages
     - **Deps**: 7.2, 3.1, 3.2, 3.3 | **Ref**: `design/implementation.md`
     - Create /admin/catalog/models page: list, add, edit product models
     - Create /admin/catalog/test-guides page: list, add, edit test guides with steps
     - Create /admin/catalog/defect-checklists page: list, add, edit checklists with items
     - Manager role only
-  - [ ] 7.5 Implement pricing rules page
+  - [x] 7.5 Implement pricing rules page
     - **Deps**: 7.2, 5.1 | **Ref**: `design/implementation.md`
     - Create /admin/pricing page: list, add, edit, deactivate pricing rules
     - Show rule conditions and adjustments in a table
     - Manager role only
-  - [ ] 7.6 Implement stock list and detail pages
+  - [x] 7.6 Implement stock list and detail pages
     - **Deps**: 7.2, 6.1 | **Ref**: `design/implementation.md`
     - Create /admin/stock page: list with filters (category, status, date, price range), pagination
     - Create /admin/stock/[id] page: full assessment details with photos, test results, defects
     - Manager role only
-  - [ ] 7.7 Implement dashboard page with export
+  - [x] 7.7 Implement dashboard page with export
     - **Deps**: 7.2, 6.2, 6.3 | **Ref**: `design/implementation.md`
     - Create /admin/dashboard page: metrics cards (assessed today, stock count, stock value), recent activity feed
     - Add "Export to Excel" buttons for stock and assessments
     - Manager role only
-  - [ ] 7.8 Implement QR mobile photo capture page
+  - [x] 7.8 Implement QR mobile photo capture page
     - **Deps**: 4.3 | **Ref**: `design/implementation.md`
     - Create /qr/[sessionId] page: mobile-optimized camera capture
     - Validate QR session on load (check expiry)

@@ -1,0 +1,15 @@
+{
+  "feature": "trade-in-platform",
+  "language": "en",
+  "platform": "kiro-ide",
+  "unit": "seller-portal",
+  "type": "unit",
+  "parentFeature": "trade-in-platform",
+  "mainStatePath": ".aidlc/workflow/trade-in-platform/workflow-state.json",
+  "currentPhase": "implementation",
+  "completedPhases": ["d3", "design", "d4", "tasks", "implementation"],
+  "nextAction": "implementation-complete",
+  "implementationMode": "standard",
+  "implementation": { "totalTasks": 3, "completedTasks": 3, "currentTask": null, "currentWave": null },
+  "lastUpdated": "2026-04-08T01:10:00Z"
+}

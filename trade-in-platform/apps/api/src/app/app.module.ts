@@ -7,9 +7,11 @@ import { ErrorsModule } from '../shared/errors';
 import { LoggingModule } from '../shared/logging';
 import { AuthModule } from '../shared/auth';
 import { AdminModule } from '../modules/admin';
+import { SellerModule } from '../modules/seller';
+import { BuyerModule } from '../modules/buyer';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, ErrorsModule, LoggingModule, AuthModule, AdminModule],
+  imports: [ConfigModule, DatabaseModule, ErrorsModule, LoggingModule, AuthModule, AdminModule, SellerModule, BuyerModule],
   controllers: [AppController],
   providers: [AppService],
 })
