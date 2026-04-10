@@ -5,6 +5,7 @@ import {
   IsInt,
   IsNumber,
   IsOptional,
+  IsUUID,
   Min,
 } from 'class-validator';
 import { ProductCategory, StockStatus } from '@prisma/client';
@@ -35,6 +36,10 @@ export class StockFilterDto {
   @IsOptional()
   @Type(() => Number)
   priceMax?: number;
+
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
 
   @IsInt()
   @IsOptional()

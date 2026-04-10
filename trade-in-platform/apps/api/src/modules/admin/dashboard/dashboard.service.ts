@@ -7,7 +7,7 @@ import { PrismaService } from '../../../shared/database';
 export class DashboardService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMetrics(dateFrom?: string, dateTo?: string) {
+  async getMetrics(dateFrom?: string, dateTo?: string, branchId?: string) {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
@@ -17,21 +17,24 @@ export class DashboardService {
       lte: dateTo ? new Date(dateTo) : endOfDay,
     };
 
+    const branchFilter = branchId ? { branchId } : {};
+
     const [assessedToday, totalStock, stockValueResult, recentActivity] = await Promise.all([
       this.prisma.assessment.count({
-        where: { createdAt: assessmentDateFilter },
+        where: { createdAt: assessmentDateFilter, ...branchFilter },
       }),
 
       this.prisma.stockItem.count({
-        where: { status: StockStatus.AVAILABLE },
+        where: { status: StockStatus.AVAILABLE, ...branchFilter },
       }),
 
       this.prisma.stockItem.aggregate({
         _sum: { price: true },
-        where: { status: StockStatus.AVAILABLE },
+        where: { status: StockStatus.AVAILABLE, ...branchFilter },
       }),
 
       this.prisma.assessment.findMany({
+        ...(branchId ? { where: { branchId } } : {}),
         take: 10,
         orderBy: { createdAt: 'desc' },
         include: {

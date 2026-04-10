@@ -6,6 +6,7 @@ import {
   NotFoundException,
   ValidationException,
 } from '../../../shared/errors';
+import { UserBranchService } from '../branch-management/user-branch.service';
 import { PricingService } from '../pricing/pricing.service';
 import { CreateAssessmentDto } from './dto/create-assessment.dto';
 import { PriceOverrideDto } from './dto/price-override.dto';
@@ -28,6 +29,7 @@ export class AssessmentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pricingService: PricingService,
+    private readonly userBranchService: UserBranchService,
   ) {}
 
   async create(dto: CreateAssessmentDto, assessedById: string) {
@@ -45,11 +47,31 @@ export class AssessmentService {
       throw new NotFoundException('Product model not found');
     }
 
+    // Resolve branchId from user's assignments
+    const userBranchIds = await this.userBranchService.getUserBranchIds(assessedById);
+    let branchId: string | null = null;
+
+    if (userBranchIds.length === 0) {
+      throw new ValidationException(
+        'User has no branch assignments — cannot create assessment',
+      );
+    } else if (dto.branchId) {
+      if (!userBranchIds.includes(dto.branchId)) {
+        throw new ValidationException(
+          'Provided branchId is not in user\'s assigned branches',
+        );
+      }
+      branchId = dto.branchId;
+    } else if (userBranchIds.length === 1) {
+      branchId = userBranchIds[0];
+    }
+
     return this.prisma.assessment.create({
       data: {
         customerId: dto.customerId,
         productModelId: dto.productModelId,
         assessedById,
+        branchId,
         status: AssessmentStatus.MODEL_SELECTED,
       },
       include: {

@@ -1,4 +1,4 @@
-import { IsUUID } from 'class-validator';
+import { IsOptional, IsUUID } from 'class-validator';
 
 export class CreateAssessmentDto {
   @IsUUID()
@@ -6,4 +6,8 @@ export class CreateAssessmentDto {
 
   @IsUUID()
   productModelId: string;
+
+  @IsUUID()
+  @IsOptional()
+  branchId?: string;
 }

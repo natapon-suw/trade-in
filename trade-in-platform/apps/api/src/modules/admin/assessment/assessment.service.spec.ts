@@ -25,6 +25,9 @@ describe('AssessmentService', () => {
     assessmentDefect: { createMany: jest.Mock; deleteMany: jest.Mock };
     $transaction: jest.Mock;
   };
+  let userBranchService: {
+    getUserBranchIds: jest.Mock;
+  };
 
   const mockAssessment = {
     id: 'assess-1',
@@ -56,7 +59,13 @@ describe('AssessmentService', () => {
       assessmentDefect: { createMany: jest.fn(), deleteMany: jest.fn() },
       $transaction: jest.fn(),
     };
-    service = new AssessmentService(prisma as any);
+    userBranchService = {
+      getUserBranchIds: jest.fn().mockResolvedValue(['branch-1']),
+    };
+    const pricingService = {
+      calculatePrice: jest.fn().mockResolvedValue({ finalPrice: 800 }),
+    };
+    service = new AssessmentService(prisma as any, pricingService as any, userBranchService as any);
   });
 
   describe('create', () => {
@@ -74,6 +83,7 @@ describe('AssessmentService', () => {
           customerId: 'cust-1',
           productModelId: 'model-1',
           assessedById: 'user-1',
+          branchId: 'branch-1',
           status: AssessmentStatus.MODEL_SELECTED,
         },
         include: {
@@ -220,7 +230,8 @@ describe('AssessmentService', () => {
 
       const updatedAssessment = {
         ...mockAssessment,
-        status: AssessmentStatus.DEFECTS_GRADED,
+        status: AssessmentStatus.PRICED,
+        finalPrice: 800,
         defects: [
           { defectItemId: 'defect-1', severity: 3, notes: null },
         ],
@@ -239,13 +250,15 @@ describe('AssessmentService', () => {
         return cb(tx);
       });
 
+      prisma.assessment.update.mockResolvedValue(updatedAssessment);
+
       const dto = {
         defects: [{ defectItemId: 'defect-1', severity: 3 }],
       };
 
       const result = await service.submitDefects('assess-1', dto);
 
-      expect(result.status).toBe(AssessmentStatus.DEFECTS_GRADED);
+      expect(result.status).toBe(AssessmentStatus.PRICED);
     });
 
     it('should throw ValidationException from wrong status (MODEL_SELECTED)', async () => {

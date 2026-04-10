@@ -3,7 +3,8 @@ module.exports = {
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   moduleNameMapper: {
-    '^\\.prisma/client(/.*)?$': '<rootDir>/node_modules/.prisma/client$1',
+    '^\\.prisma/client(/.*)?$': '<rootDir>/../../node_modules/.prisma/client$1',
+    '^@prisma/client$': '<rootDir>/../../node_modules/.prisma/client/index.js',
   },
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { BranchManagementModule } from '../branch-management/branch-management.module';
 import { PricingModule } from '../pricing/pricing.module';
 import { AssessmentController } from './assessment.controller';
 import { AssessmentService } from './assessment.service';
@@ -10,7 +11,7 @@ import { QRSessionController } from './qr-session.controller';
 import { QRSessionService } from './qr-session.service';
 
 @Module({
-  imports: [PricingModule],
+  imports: [PricingModule, BranchManagementModule],
   controllers: [AssessmentController, PhotoController, QRSessionController],
   providers: [
     AssessmentService,

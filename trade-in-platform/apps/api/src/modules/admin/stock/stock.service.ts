@@ -49,6 +49,7 @@ export class StockService {
           productModelId: assessment.productModelId,
           price: assessment.finalPrice!,
           conditionGrade,
+          branchId: assessment.branchId,
         },
         include: { productModel: true },
       }),
@@ -94,6 +95,10 @@ export class StockService {
       if (filters.priceMax !== undefined) {
         where.price.lte = filters.priceMax;
       }
+    }
+
+    if (filters.branchId) {
+      where.branchId = filters.branchId;
     }
 
     const [data, total] = await Promise.all([

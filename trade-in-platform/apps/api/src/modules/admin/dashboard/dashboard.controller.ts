@@ -13,6 +13,6 @@ export class DashboardController {
   @Roles('admin-manager')
   @HttpCode(HttpStatus.OK)
   async getMetrics(@Query() query: DashboardQueryDto) {
-    return this.dashboardService.getMetrics(query.dateFrom, query.dateTo);
+    return this.dashboardService.getMetrics(query.dateFrom, query.dateTo, query.branchId);
   }
 }
