@@ -25,7 +25,7 @@ export class QRSessionService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {
-    this.appUrl = this.configService.get<string>('APP_URL', 'http://localhost:3000');
+    this.appUrl = this.configService.get<string>('appUrl') ?? 'http://localhost:3000';
   }
 
   async generateSession(assessmentId: string) {

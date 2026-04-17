@@ -27,11 +27,11 @@ export class UserBranchController {
     return this.userBranchService.assign(dto);
   }
 
-  @Delete(':id')
+  @Get('users')
   @Roles('admin-manager')
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id') id: string) {
-    return this.userBranchService.remove(id);
+  async listUsers() {
+    return this.userBranchService.listUsers();
   }
 
   @Get()
@@ -48,5 +48,12 @@ export class UserBranchController {
       return this.userBranchService.findByUser(userId);
     }
     return [];
+  }
+
+  @Delete(':id')
+  @Roles('admin-manager')
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id') id: string) {
+    return this.userBranchService.remove(id);
   }
 }

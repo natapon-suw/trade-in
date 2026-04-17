@@ -98,4 +98,12 @@ export class UserBranchService {
 
     return assignments.map((a) => a.branchId);
   }
+
+  async listUsers() {
+    return this.prisma.user.findMany({
+      where: { isActive: true, deletedAt: null },
+      select: { id: true, name: true, email: true, role: true },
+      orderBy: { name: 'asc' },
+    });
+  }
 }

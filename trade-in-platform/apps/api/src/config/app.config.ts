@@ -16,6 +16,7 @@ export interface AppConfig {
   port: number;
   uploadPath: string;
   nodeEnv: Environment;
+  appUrl: string;
 }
 
 function parseDatabaseUrl(url: string) {
@@ -45,5 +46,6 @@ export const appConfig = (): AppConfig => {
     port: parseInt(process.env.PORT ?? '3000', 10),
     uploadPath: process.env.UPLOAD_PATH ?? './uploads',
     nodeEnv: (process.env.NODE_ENV as Environment) ?? Environment.Development,
+    appUrl: process.env.APP_URL ?? 'http://localhost:3000',
   };
 };

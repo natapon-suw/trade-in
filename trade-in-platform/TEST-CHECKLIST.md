@@ -18,7 +18,7 @@
 ### Admin Manager Login
 - [/] Logout → login: `manager@tradein.local` / `Manager123!`
 - [/] Redirects to `/admin/dashboard`
-- [/] Sidebar shows: Assessment, Dashboard, Stock, Catalog, Pricing Rules
+- [/] Sidebar shows: Assessment, Dashboard, Stock, Catalog, Pricing Rules, Branches
 
 ### Invalid Login
 - [/] Try wrong password → shows "Invalid email or password"
@@ -28,14 +28,69 @@
 
 ---
 
-## 2. Catalog Setup (login as Manager)
+## 2. Branch Management Setup (login as Manager)
+
+> Set up the geographic hierarchy before anything else — assessments require branch assignments.
+
+### Countries
+- [ ] Go to `/admin/branches` → Countries tab active
+- [ ] Click "Add Country" → name=United States → created, appears in list
+- [ ] Add another: name=Canada
+- [ ] Try adding "United States" again → duplicate error
+- [ ] Click "Edit" on Canada → rename to "Canada Updated" → saves
+- [ ] Rename back to "Canada"
+- [ ] Countries listed alphabetically (Canada, United States)
+
+### Provinces
+- [ ] Switch to Provinces tab
+- [ ] Select country=United States
+- [ ] Add province: name=California → created
+- [ ] Add province: name=New York → created
+- [ ] Select country=Canada → add province: name=Ontario
+- [ ] Try adding "California" again under United States → duplicate error
+- [ ] Add "California" under Canada → succeeds (different country scope)
+- [ ] Provinces sorted alphabetically within each country
+
+### Branches
+- [ ] Switch to Branches tab
+- [ ] Filter by country=United States, province=California
+- [ ] Add branch: name=LA Downtown, address=123 Main St → created
+- [ ] Add branch: name=SF Market St, address=456 Market St → created
+- [ ] Filter by province=New York → add branch: name=NYC 5th Ave, address=789 5th Ave
+- [ ] Try adding "LA Downtown" again under California → duplicate error
+- [ ] Branches sorted alphabetically
+
+### Hierarchy View
+- [ ] GET `/api/v1/admin/branch-management/hierarchy` returns nested structure
+- [ ] Countries → Provinces → Branches all present and sorted alphabetically
+- [ ] GET `/api/v1/admin/branch-management/hierarchy/:countryId` returns single country subtree
+
+### User-Branch Assignments
+- [ ] Switch to Assignments tab
+- [ ] Select a branch from the dropdown (e.g., "LA Downtown")
+- [ ] Enter the admin operation user ID (from seed output) and click "Assign"
+- [ ] User appears in the table with name, email, role
+- [ ] Try assigning same user again → conflict error
+- [ ] Click "Remove" → user removed from list
+
+### Soft-Delete Guards
+- [ ] Try deleting "LA Downtown" branch (has assigned user) → error: has active assignments
+- [ ] Unassign admin@tradein.local from "LA Downtown"
+- [ ] Delete "LA Downtown" → succeeds, disappears from list
+- [ ] Re-add "LA Downtown" branch for later tests, re-assign admin@tradein.local to it
+- [ ] Try deleting province "California" (has active branches) → error: has active child records
+- [ ] Try deleting country "United States" (has active provinces) → error: has active child records
+
+---
+
+## 3. Catalog Setup (login as Manager)
 
 ### Product Models
-- [/] Go to `/admin/catalog/models`
-- [/] Click "Add Model" → fill: brand=Apple, name=MacBook Pro 14, category=MACBOOK, basePrice=1500
-- [/] Model appears in table
-- [/] Click "Edit" → change base price → saves
-- [/] Click Active/Inactive toggle → status changes
+- [ ] Go to `/admin/catalog/models`
+- [ ] Click "Add Model" → fill: brand=Apple, name=MacBook Pro 14, category=MACBOOK, basePrice=1500
+- [ ] Model appears in table
+- [ ] Click "Edit" → change base price → saves
+- [ ] Click Active/Inactive toggle → status changes
 
 ### Test Guides
 - [ ] Go to `/admin/catalog/test-guides`
@@ -53,7 +108,7 @@
 
 ---
 
-## 3. Pricing Rules (login as Manager)
+## 4. Pricing Rules (login as Manager)
 
 - [ ] Go to `/admin/pricing`
 - [ ] Add rule: name="High defect count", conditionType=DEFECT_COUNT, operator=GT, value=2, adjustmentType=PERCENTAGE, adjustmentValue=-15, priority=5
@@ -64,7 +119,7 @@
 
 ---
 
-## 4. Assessment Workflow (login as Operation)
+## 5. Assessment Workflow (login as Operation)
 
 ### Step 1: Customer
 - [ ] Go to `/admin/assessment`
@@ -72,9 +127,12 @@
 - [ ] Click "Register New" → fill name + phone → customer created
 - [ ] Customer selected → moves to step 2
 
-### Step 2: Product Model
+### Step 2: Product Model + Branch Selection
 - [ ] Search for "MacBook" → model appears
-- [ ] Select model → assessment created → moves to step 3
+- [ ] Select model
+- [ ] If user has 1 branch → branch auto-selected (shown as read-only)
+- [ ] If user has multiple branches → branch dropdown appears, select one
+- [ ] Assessment created with branchId → moves to step 3
 
 ### Step 3: Test Guide
 - [ ] Test guide loads with 3 steps
@@ -105,22 +163,34 @@
 - [ ] Success message shown
 - [ ] "Start New Assessment" button works
 
+### Branch-Scoped Assessment Edge Cases
+- [ ] (API) Create assessment without branch assignments → error: "User has no branch assignments"
+- [ ] (API) Create assessment with branchId not in user's assignments → error: "Provided branchId is not in user's assigned branches"
+
 ---
 
-## 5. Dashboard (login as Manager)
+## 6. Dashboard (login as Manager)
 
 - [ ] Go to `/admin/dashboard`
-- [ ] "Assessed Today" shows count (at least 1 from step 4)
+- [ ] "Assessed Today" shows count (at least 1 from step 5)
 - [ ] "Total Stock" shows count (at least 1)
 - [ ] "Stock Value" shows dollar amount
 - [ ] Recent Activity shows the assessment just completed
+
+### Branch Filtering
+- [ ] Select a branch from the branch filter dropdown
+- [ ] Metrics update to show only data for the selected branch
+- [ ] Clear branch filter → all data shown again
+- [ ] Select a branch with no assessments → counts show 0
+
+### Export
 - [ ] Click "Export Stock" → downloads .xlsx file
 - [ ] Click "Export Assessments" → downloads .xlsx file
 - [ ] Open .xlsx files → data is correct
 
 ---
 
-## 6. Stock (login as Manager)
+## 7. Stock (login as Manager)
 
 - [ ] Go to `/admin/stock`
 - [ ] Stock item from assessment appears in list
@@ -129,9 +199,14 @@
 - [ ] Detail shows: product info, photos, test results, defects, price breakdown
 - [ ] Back button works
 
+### Branch Filtering
+- [ ] Select a branch from the branch filter dropdown → only stock from that branch shown
+- [ ] Clear branch filter → all stock shown
+- [ ] Stock item's branchId matches the assessment's branch (inherited)
+
 ---
 
-## 7. QR Mobile Photo (during assessment step 5)
+## 8. QR Mobile Photo (during assessment step 5)
 
 - [ ] During step 5, click "Use Phone Camera"
 - [ ] QR code appears on screen
@@ -142,7 +217,7 @@
 
 ---
 
-## 8. Seller Portal
+## 9. Seller Portal
 
 ### Price Check (no login required)
 - [ ] Go to http://localhost:4200/seller
@@ -164,7 +239,7 @@
 
 ---
 
-## 9. Buyer Portal
+## 10. Buyer Portal
 
 ### Online Browse
 - [ ] Go to http://localhost:4200/browse
@@ -183,8 +258,16 @@
 
 ---
 
-## 10. RBAC Enforcement
+## 11. RBAC Enforcement
 
+### Branch Management RBAC
+- [ ] Login as Operation → cannot create/update/delete countries, provinces, or branches
+- [ ] Login as Operation → can read (list/get) countries, provinces, branches, hierarchy
+- [ ] Login as Operation → cannot create/delete user-branch assignments
+- [ ] Login as Manager → can perform all branch management operations
+- [ ] Seller cannot access any `/api/v1/admin/branch-management/*` endpoints → 403
+
+### General RBAC
 - [ ] Login as Operation → cannot access `/admin/dashboard` (sidebar hidden)
 - [ ] Login as Operation → cannot access `/admin/stock`
 - [ ] Login as Operation → cannot access `/admin/pricing`
@@ -194,7 +277,7 @@
 
 ---
 
-## 11. Automated Tests
+## 12. Automated Tests
 
 - [ ] Run `npx nx test api` → all tests pass
 - [ ] PBT tests included (pricing engine, defect grading)

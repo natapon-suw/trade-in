@@ -176,7 +176,7 @@ model DefectItem {
 
 model Country {
   id        String    @id @default(uuid())
-  name      String    @unique
+  name      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -198,8 +198,8 @@ model Province {
   country  Country  @relation(fields: [countryId], references: [id])
   branches Branch[]
 
-  @@unique([countryId, name])
   @@index([countryId])
+  @@index([countryId, name])
   @@map("admin_provinces")
 }
 
@@ -217,8 +217,8 @@ model Branch {
   assessments Assessment[]
   stockItems  StockItem[]
 
-  @@unique([provinceId, name])
   @@index([provinceId])
+  @@index([provinceId, name])
   @@map("admin_branches")
 }
 

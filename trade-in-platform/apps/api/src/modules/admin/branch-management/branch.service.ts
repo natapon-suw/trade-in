@@ -40,6 +40,14 @@ export class BranchService {
         ...(provinceId ? { provinceId } : {}),
         ...(countryId ? { province: { countryId } } : {}),
       },
+      include: {
+        province: {
+          select: {
+            name: true,
+            country: { select: { name: true } },
+          },
+        },
+      },
       orderBy: { name: 'asc' },
     });
   }

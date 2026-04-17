@@ -48,6 +48,12 @@ const NAV_ITEMS: NavItem[] = [
     href: '/admin/pricing',
     roles: ['admin-manager'],
   },
+  {
+    label: 'Branches',
+    icon: '🏢',
+    href: '/admin/branches',
+    roles: ['admin-manager'],
+  },
 ];
 
 function isActive(pathname: string, href: string): boolean {

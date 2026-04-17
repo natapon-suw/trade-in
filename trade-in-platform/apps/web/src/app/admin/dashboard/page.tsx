@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   getDashboardMetrics,
   downloadExcel,
+  getHierarchy,
   type DashboardMetrics,
+  type HierarchyCountry,
 } from '../../../lib/api';
 
 export default function DashboardPage() {
@@ -13,7 +15,13 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [branchId, setBranchId] = useState('');
+  const [hierarchy, setHierarchy] = useState<HierarchyCountry[]>([]);
   const [exporting, setExporting] = useState<string | null>(null);
+
+  useEffect(() => {
+    getHierarchy().then(setHierarchy).catch(() => {});
+  }, []);
 
   const fetchMetrics = useCallback(async () => {
     setLoading(true);
@@ -22,6 +30,7 @@ export default function DashboardPage() {
       const data = await getDashboardMetrics(
         dateFrom || undefined,
         dateTo || undefined,
+        branchId || undefined,
       );
       setMetrics(data);
     } catch {
@@ -29,7 +38,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, branchId]);
 
   useEffect(() => {
     fetchMetrics();
@@ -113,6 +122,25 @@ export default function DashboardPage() {
             </button>
           </div>
         )}
+        <div>
+          <label className="mb-1 block text-xs font-medium text-gray-600">Branch</label>
+          <select
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="">All Branches</option>
+            {hierarchy.map((country) =>
+              country.provinces.map((province) =>
+                province.branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name} — {province.name}, {country.name}
+                  </option>
+                )),
+              ),
+            )}
+          </select>
+        </div>
       </div>
 
       {loading ? (

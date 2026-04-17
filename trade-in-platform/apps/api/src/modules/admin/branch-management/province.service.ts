@@ -35,6 +35,9 @@ export class ProvinceService {
         deletedAt: null,
         ...(countryId ? { countryId } : {}),
       },
+      include: {
+        country: { select: { name: true } },
+      },
       orderBy: { name: 'asc' },
     });
   }

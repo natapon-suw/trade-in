@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getStockItems, type StockItemWithModel } from '../../../lib/api';
+import { getStockItems, getHierarchy, type StockItemWithModel, type HierarchyCountry } from '../../../lib/api';
 
 const CATEGORIES = ['', 'LAPTOP', 'PC', 'MACBOOK'] as const;
 const STATUSES = ['', 'AVAILABLE', 'SOLD', 'REMOVED'] as const;
@@ -29,8 +29,14 @@ export default function StockListPage() {
   const [dateTo, setDateTo] = useState('');
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
+  const [branchId, setBranchId] = useState('');
+  const [hierarchy, setHierarchy] = useState<HierarchyCountry[]>([]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  useEffect(() => {
+    getHierarchy().then(setHierarchy).catch(() => {});
+  }, []);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -43,6 +49,7 @@ export default function StockListPage() {
         dateTo: dateTo || undefined,
         priceMin: priceMin || undefined,
         priceMax: priceMax || undefined,
+        branchId: branchId || undefined,
         page,
         pageSize: PAGE_SIZE,
       });
@@ -53,7 +60,7 @@ export default function StockListPage() {
     } finally {
       setLoading(false);
     }
-  }, [category, status, dateFrom, dateTo, priceMin, priceMax, page]);
+  }, [category, status, dateFrom, dateTo, priceMin, priceMax, branchId, page]);
 
   useEffect(() => {
     fetchItems();
@@ -66,6 +73,7 @@ export default function StockListPage() {
     setDateTo('');
     setPriceMin('');
     setPriceMax('');
+    setBranchId('');
     setPage(1);
   };
 
@@ -81,7 +89,7 @@ export default function StockListPage() {
 
       {/* Filters */}
       <div className="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label className="mb-1 block text-xs font-medium text-gray-600">Category</label>
             <select
@@ -106,6 +114,25 @@ export default function StockListPage() {
               {STATUSES.filter(Boolean).map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-600">Branch</label>
+            <select
+              value={branchId}
+              onChange={(e) => { setBranchId(e.target.value); setPage(1); }}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Branches</option>
+              {hierarchy.map((country) =>
+                country.provinces.map((province) =>
+                  province.branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name} — {province.name}, {country.name}
+                    </option>
+                  )),
+                ),
+              )}
             </select>
           </div>
           <div>

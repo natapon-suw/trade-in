@@ -29,7 +29,13 @@ export async function apiFetch<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  const method = options.method?.toUpperCase() ?? 'GET';
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers,
+    ...(method === 'GET' ? { cache: 'no-store' as RequestCache } : {}),
+  });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -297,6 +303,7 @@ export async function getStockItems(filters: {
   dateTo?: string;
   priceMin?: string;
   priceMax?: string;
+  branchId?: string;
   page?: number;
   pageSize?: number;
 } = {}) {
@@ -307,6 +314,7 @@ export async function getStockItems(filters: {
   if (filters.dateTo) params.set('dateTo', filters.dateTo);
   if (filters.priceMin) params.set('priceMin', filters.priceMin);
   if (filters.priceMax) params.set('priceMax', filters.priceMax);
+  if (filters.branchId) params.set('branchId', filters.branchId);
   if (filters.page) params.set('page', String(filters.page));
   if (filters.pageSize) params.set('pageSize', String(filters.pageSize));
   return apiFetch<{ data: StockItemWithModel[]; total: number; page: number; pageSize: number }>(
@@ -319,10 +327,11 @@ export async function getStockItemDetail(id: string) {
 }
 
 // --- Dashboard API ---
-export async function getDashboardMetrics(dateFrom?: string, dateTo?: string) {
+export async function getDashboardMetrics(dateFrom?: string, dateTo?: string, branchId?: string) {
   const params = new URLSearchParams();
   if (dateFrom) params.set('dateFrom', dateFrom);
   if (dateTo) params.set('dateTo', dateTo);
+  if (branchId) params.set('branchId', branchId);
   return apiFetch<DashboardMetrics>(`/v1/admin/dashboard?${params.toString()}`);
 }
 
@@ -613,4 +622,210 @@ export interface PriceCheckResult {
   basePrice: number;
   deductions: number;
   finalEstimate: number;
+}
+
+// --- Branch Management API ---
+
+export interface Country {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  _count?: { provinces: number };
+}
+
+export interface Province {
+  id: string;
+  name: string;
+  countryId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  country?: { name: string };
+  _count?: { branches: number };
+}
+
+export interface Branch {
+  id: string;
+  name: string;
+  address: string;
+  provinceId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  province?: { name: string; country: { name: string } };
+  _count?: { assignments: number };
+}
+
+export interface UserBranchAssignment {
+  id: string;
+  userId: string;
+  branchId: string;
+  createdAt: string;
+  user?: { id: string; name: string; email: string; role: string };
+  branch?: {
+    id: string;
+    name: string;
+    address: string;
+    province: { id: string; name: string; country: { id: string; name: string } };
+  };
+}
+
+export interface HierarchyCountry {
+  id: string;
+  name: string;
+  provinces: HierarchyProvince[];
+}
+
+export interface HierarchyProvince {
+  id: string;
+  name: string;
+  branches: HierarchyBranch[];
+}
+
+export interface HierarchyBranch {
+  id: string;
+  name: string;
+  address: string;
+}
+
+// Countries
+export async function getCountries() {
+  return apiFetch<Country[]>('/v1/admin/branch-management/countries');
+}
+
+export async function getCountry(id: string) {
+  return apiFetch<Country>(`/v1/admin/branch-management/countries/${id}`);
+}
+
+export async function createCountry(data: { name: string }) {
+  return apiFetch<Country>('/v1/admin/branch-management/countries', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateCountry(id: string, data: { name: string }) {
+  return apiFetch<Country>(`/v1/admin/branch-management/countries/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteCountry(id: string) {
+  return apiFetch<Country>(`/v1/admin/branch-management/countries/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// Provinces
+export async function getProvinces(countryId?: string) {
+  const qs = countryId ? `?countryId=${countryId}` : '';
+  return apiFetch<Province[]>(`/v1/admin/branch-management/provinces${qs}`);
+}
+
+export async function getProvince(id: string) {
+  return apiFetch<Province>(`/v1/admin/branch-management/provinces/${id}`);
+}
+
+export async function createProvince(data: { name: string; countryId: string }) {
+  return apiFetch<Province>('/v1/admin/branch-management/provinces', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateProvince(id: string, data: { name: string }) {
+  return apiFetch<Province>(`/v1/admin/branch-management/provinces/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteProvince(id: string) {
+  return apiFetch<Province>(`/v1/admin/branch-management/provinces/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// Branches
+export async function getBranches(provinceId?: string, countryId?: string) {
+  const params = new URLSearchParams();
+  if (provinceId) params.set('provinceId', provinceId);
+  if (countryId) params.set('countryId', countryId);
+  const qs = params.toString();
+  return apiFetch<Branch[]>(`/v1/admin/branch-management/branches${qs ? `?${qs}` : ''}`);
+}
+
+export async function getBranch(id: string) {
+  return apiFetch<Branch>(`/v1/admin/branch-management/branches/${id}`);
+}
+
+export async function createBranch(data: { name: string; address: string; provinceId: string }) {
+  return apiFetch<Branch>('/v1/admin/branch-management/branches', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateBranch(id: string, data: { name?: string; address?: string }) {
+  return apiFetch<Branch>(`/v1/admin/branch-management/branches/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteBranch(id: string) {
+  return apiFetch<Branch>(`/v1/admin/branch-management/branches/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// User-Branch Assignments
+export async function getUserAssignments(params: { branchId?: string; userId?: string }) {
+  const qs = new URLSearchParams();
+  if (params.branchId) qs.set('branchId', params.branchId);
+  if (params.userId) qs.set('userId', params.userId);
+  const q = qs.toString();
+  return apiFetch<UserBranchAssignment[]>(
+    `/v1/admin/branch-management/user-assignments${q ? `?${q}` : ''}`,
+  );
+}
+
+export async function createUserAssignment(data: { userId: string; branchId: string }) {
+  return apiFetch<UserBranchAssignment>('/v1/admin/branch-management/user-assignments', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteUserAssignment(id: string) {
+  return apiFetch<UserBranchAssignment>(
+    `/v1/admin/branch-management/user-assignments/${id}`,
+    { method: 'DELETE' },
+  );
+}
+
+// Hierarchy
+export async function getHierarchy() {
+  return apiFetch<HierarchyCountry[]>('/v1/admin/branch-management/hierarchy');
+}
+
+export async function getCountryHierarchy(countryId: string) {
+  return apiFetch<HierarchyCountry>(
+    `/v1/admin/branch-management/hierarchy/${countryId}`,
+  );
+}
+
+// Users list (for branch assignment)
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export async function getAdminUsers() {
+  return apiFetch<AdminUser[]>('/v1/admin/branch-management/user-assignments/users');
 }
